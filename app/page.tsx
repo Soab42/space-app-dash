@@ -5,7 +5,7 @@ import { AnalyticsCharts } from "@/components/AnalyticsCharts";
 
 export default async function Page() {
   const pubs = await api<any[]>("/publications", { next: { revalidate: 5 } });
-  const total = { count: pubs.length };
+  const overview = await api<any>("/analytics/overview", { next: { revalidate: 5 } });
 
   const categories: { category: string; count: number }[] = (
     (pubs as any[])
@@ -24,9 +24,15 @@ export default async function Page() {
     <div>
       <Header />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="glass-card p-6 rounded-lg">
-          <h2 className="text-xl font-semibold mb-4">Total Publications</h2>
-          <div className="text-4xl font-bold">{total.count}</div>
+        <div className="glass-card p-6 rounded-lg flex flex-col gap-4" >
+          <div className="glass-card p-6 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">Total Publications</h2>
+            <div className="text-4xl font-bold">{overview.publication_count}</div>
+          </div>
+          <div className="glass-card p-6 rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">Total Authors</h2>
+            <div className="text-4xl font-bold">{overview.author_count}</div>
+          </div>
         </div>
         <div className="glass-card p-6 rounded-lg">
           <h2 className="text-xl font-semibold mb-4">
