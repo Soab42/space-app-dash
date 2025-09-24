@@ -1,22 +1,24 @@
 @import "tailwindcss";
 @import "./stars.css";
-
+/* 
 body {
-  background-color: #0a0a2a; /* Deep navy blue */
+  background-color: #0a0a2a;
   color: #ffffff;
-}
+} */
 
 .glass-card {
-  background: rgba(10, 10, 42, 0.5); /* Semi-transparent navy blue */
+  background: rgba(255, 255, 255, 0.39);
   backdrop-filter: blur(10px);
+  color: #000;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 14px 6px rgba(255, 255, 255, 0.1);
   border-radius: 10px;
   transition: all 0.2s ease-in-out;
 }
 
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 6px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
 }
 
 .glass-header {
