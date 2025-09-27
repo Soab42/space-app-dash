@@ -113,6 +113,7 @@ export function Sidebar() {
       { href: "/upload", label: "Upload", Icon: UploadIcon },
       { href: "/publications", label: "Browse", Icon: ListIcon },
       { href: "/search", label: "Search", Icon: SearchIcon },
+      { href: "/categories", label: "Categories", Icon: ListIcon },
     ],
     []
   );

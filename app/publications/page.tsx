@@ -99,32 +99,32 @@ export default async function Page({
                     <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
                       <span className="inline-flex items-center gap-1 rounded-full bg-white/70 border border-white/40 px-2.5 py-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                        {p.year ?? "—"}
+                        {p.date_month ?? "-"}  {p.date_year ?? "-"}
                       </span>
                       <span className="inline-flex items-center gap-1 rounded-full bg-white/70 border border-white/40 px-2.5 py-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                        {p.organism ?? "—"}
+                        {p.organism ?? "-"}
                       </span>
                     </div>
 
                     {/* Summary */}
                     <p className="mt-3 text-slate-700 text-sm leading-relaxed line-clamp-3">
-                      {p.summary || "No summary yet."}
+                      {p.abstract || "No summary yet."}
                     </p>
 
                     {/* Footer: Authors + Tags */}
                     <div className="mt-4 flex flex-wrap items-center gap-2">
                       {/* Authors */}
-                      {p.authors.slice(0, 3).map((name, i) => (
+                      {p.authors.slice(0, 3).map((author, i) => (
                         <span
                           key={`${p.id}-author-${i}`}
                           className="inline-flex items-center gap-2 rounded-full bg-white/70 border border-white/40 px-2.5 py-1 text-xs text-slate-700"
-                          title={name}
+                          title={author.name}
                         >
                           <span className="grid place-items-center h-5 w-5 rounded-full bg-slate-200/70 border border-white/50 text-[10px] font-semibold text-slate-700">
-                            {initials(name)}
+                            {initials(author.name)}
                           </span>
-                          {name}
+                          {author.name}
                         </span>
                       ))}
                       {p.authors.length > 3 && (
@@ -137,12 +137,12 @@ export default async function Page({
                       <span className="mx-1 text-slate-300">•</span>
 
                       {/* Tags */}
-                      {p.tags.slice(0, 4).map((t) => (
+                      {p.tags.slice(0, 4).map((tag) => (
                         <span
-                          key={`${p.id}-tag-${t}`}
+                          key={`${p.id}-tag-${tag.id}`}
                           className="inline-flex items-center rounded-full bg-slate-900/80 text-white/90 border border-white/10 px-2.5 py-1 text-[11px] tracking-wide"
                         >
-                          #{t}
+                          {tag.name}
                         </span>
                       ))}
                       {p.tags.length > 4 && (

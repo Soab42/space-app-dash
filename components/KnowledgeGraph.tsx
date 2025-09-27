@@ -212,7 +212,7 @@ export default function ForceGraph({
       // Draw edges first
       ctx.lineWidth = 1 / zoom;
       ctx.strokeStyle = "#cbd5e1"; // slate-300
-      ctx.fillStyle = "white"; // slate-400 for arrowheads
+      ctx.fillStyle = "black"; // slate-400 for arrowheads
 
       for (const e of edges) {
         const a = nodeMap.get(e.source)!;
