@@ -25,9 +25,16 @@ export default function UploadForm() {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const res = await fetch(`${API_BASE}/categories`);
-      if (res.ok) {
-        setCategories(await res.json());
+      try {
+        const res = await fetch(`${API_BASE}/categories`);
+        if (res.ok) {
+          setCategories(await res.json());
+        } else {
+          throw new Error("Failed to fetch categories");
+        }
+      } catch (error) {
+        console.error(error);
+        throw error;
       }
     };
     fetchCategories();
@@ -48,33 +55,37 @@ export default function UploadForm() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // setBusy(true);
-    // setResp(null);
+    setBusy(true);
+    setResp(null);
 
-    const meta = {
-      ...formData,
-      authors: JSON.parse(formData.authors || "[]"),
-      subcategory_id: Number(formData.subcategory_id) || null,
-      metadata_json: {},
-      others_data: JSON.parse(formData.others_data || "{}"),
-    };
-    console.log('meta',meta);
-    // const fd = new FormData();
-    // fd.append("metadata_json", JSON.stringify(meta));
-    // if (pdf) fd.append("pdf", pdf);
+    try {
+      const meta = {
+        ...formData,
+        authors: JSON.parse(formData.authors || "[]"),
+        subcategory_id: Number(formData.subcategory_id) || null,
+        metadata_json: {},
+        others_data: JSON.parse(formData.others_data || "{}"),
+      };
+      
+      const fd = new FormData();
+      fd.append("metadata_json", JSON.stringify(meta));
+      if (pdf) fd.append("pdf", pdf);
 
-    // const res = await fetch(`${API_BASE}/publications`, {
-    //   method: "POST",
-    //   body: fd,
-    // });
+      const res = await fetch(`${API_BASE}/publications`, {
+        method: "POST",
+        body: fd,
+      });
 
-    // if (!res.ok) {
-    //   setBusy(false);
-    //   alert(await res.text());
-    //   return;
-    // }
-    // setResp(await res.json());
-    // setBusy(false);
+      if (!res.ok) {
+        throw new Error(await res.text());
+      }
+      setResp(await res.json());
+    } catch (error) {
+      console.error(error);
+      alert(error.message);
+    } finally {
+      setBusy(false);
+    }
   }
 console.log(categories);
 

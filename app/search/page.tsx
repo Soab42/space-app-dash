@@ -23,12 +23,21 @@ export default function Page() {
   async function run() {
     if (!q.trim()) return;
     setBusy(true);
-    const res = await fetch(
-      `${API_BASE}/search/global?q=${encodeURIComponent(q)}&k=12`
-    );
-    const j = await res.json();
-    setHits(j);
-    setBusy(false);
+    try {
+      const res = await fetch(
+        `${API_BASE}/search/global?q=${encodeURIComponent(q)}&k=12`
+      );
+      if (!res.ok) {
+        throw new Error("Search failed");
+      }
+      const j = await res.json();
+      setHits(j);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      setBusy(false);
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

@@ -279,6 +279,8 @@ const ChatUI: React.FC<ChatUIProps> = ({
       }
     } catch (error) {
       console.error('Failed to load chat history from localStorage:', error);
+      // Optionally, clear the corrupted storage
+      localStorage.removeItem(storageKey);
     }
   }, [storageKey]);
 
@@ -320,7 +322,8 @@ const ChatUI: React.FC<ChatUIProps> = ({
       });
       
       if (!res.ok) {
-        throw new Error("Network response was not ok");
+        const errorText = await res.text();
+        throw new Error(errorText || "Network response was not ok");
       }
       
       const data = await res.json();
@@ -345,7 +348,7 @@ const ChatUI: React.FC<ChatUIProps> = ({
         const updated = [...prev];
         updated[updated.length - 1] = {
           ...updated[updated.length - 1],
-          answer: "An error occurred while fetching the answer. Please try again.",
+          answer: `An error occurred: ${error.message}`,
           isTyping: true
         };
         return updated;
@@ -421,7 +424,7 @@ const ChatUI: React.FC<ChatUIProps> = ({
       <div 
         ref={chatContainerRef} 
         className={`flex-grow p-6 overflow-y-auto transition-all duration-300 ${
-          isPoppedOut ? 'h-full' : isExpanded ? 'h-80' : 'h-48'
+          isPoppedOut ? 'h-full' : isExpanded ? 'h-128' : 'h-48'
         }`}
       >
         {history.length === 0 && (

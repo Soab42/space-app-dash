@@ -23,10 +23,18 @@ const CategoriesPage = () => {
   }, []);
 
   const fetchCategories = async () => {
-    const res = await fetch('http://localhost:8000/categories', { cache: 'no-store' });
-    if (res.ok) {
-      const data = await res.json();
-      setCategories(data);
+    try {
+      const res = await fetch('http://localhost:8000/categories', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      } else {
+        throw new Error('Failed to fetch categories');
+      }
+    } catch (error) {
+      console.error(error);
+      // This will be caught by the nearest error boundary
+      throw error;
     }
   };
 
@@ -34,16 +42,23 @@ const CategoriesPage = () => {
     const url = editingCategory ? `http://localhost:8000/categories/${editingCategory.id}` : 'http://localhost:8000/categories';
     const method = editingCategory ? 'PUT' : 'POST';
 
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(category),
-    });
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(category),
+      });
 
-    if (res.ok) {
-      fetchCategories();
-      setIsCategoryModalOpen(false);
-      setEditingCategory(null);
+      if (res.ok) {
+        fetchCategories();
+        setIsCategoryModalOpen(false);
+        setEditingCategory(null);
+      } else {
+        throw new Error('Failed to save category');
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   };
 
@@ -51,36 +66,57 @@ const CategoriesPage = () => {
     const url = editingSubCategory ? `http://localhost:8000/categories/subcategories/${editingSubCategory.id}` : 'http://localhost:8000/categories/subcategories/';
     const method = editingSubCategory ? 'PUT' : 'POST';
 
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(subCategory),
-    });
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(subCategory),
+      });
 
-    if (res.ok) {
-      fetchCategories();
-      setIsSubCategoryModalOpen(false);
-      setEditingSubCategory(null);
+      if (res.ok) {
+        fetchCategories();
+        setIsSubCategoryModalOpen(false);
+        setEditingSubCategory(null);
+      } else {
+        throw new Error('Failed to save subcategory');
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   };
 
   const handleDeleteCategory = async (categoryId) => {
-    const res = await fetch(`http://localhost:8000/categories/${categoryId}`, {
-      method: 'DELETE',
-    });
+    try {
+      const res = await fetch(`http://localhost:8000/categories/${categoryId}`, {
+        method: 'DELETE',
+      });
 
-    if (res.ok) {
-      fetchCategories();
+      if (res.ok) {
+        fetchCategories();
+      } else {
+        throw new Error('Failed to delete category');
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   };
 
   const handleDeleteSubCategory = async (subCategoryId) => {
-    const res = await fetch(`http://localhost:8000/categories/subcategories/${subCategoryId}`, {
-      method: 'DELETE',
-    });
+    try {
+      const res = await fetch(`http://localhost:8000/categories/subcategories/${subCategoryId}`, {
+        method: 'DELETE',
+      });
 
-    if (res.ok) {
-      fetchCategories();
+      if (res.ok) {
+        fetchCategories();
+      } else {
+        throw new Error('Failed to delete subcategory');
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
     }
   };
 

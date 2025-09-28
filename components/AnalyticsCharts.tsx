@@ -20,6 +20,7 @@ type Basic = {
   byYear: { year: number | string; count: number }[];
   topOrganisms: { organism: string; count: number }[];
   topTags: { tag: string; count: number }[];
+  categories: { category: string; count: number }[];
 };
 
 // ---- triangle bar helpers (from your sample) ----
@@ -172,9 +173,9 @@ export function AnalyticsCharts() {
   if (!data) return <div className="p-6">Loading…</div>;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
       {/* FIRST CHART: Top Organisms with Triangle Bars */}
-      <section className=" p-4 rounded-lg xl:col-span-2">
+      <section className=" p-4 rounded-lg xl:col-span-3">
         <h2 className="font-semibold mb-4 text-slate-900">Top Organisms</h2>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
@@ -206,7 +207,7 @@ export function AnalyticsCharts() {
 
       {/* MIDDLE CHART: Top Tags (unchanged) */}
       {/* TOP TAGS — Active Slice Pie */}
-      <section className="p-4 rounded-lg col-span-1">
+      <section className="p-4 rounded-lg col-span-2">
         <h2 className="font-semibold mb-4 text-slate-900">Top Tags</h2>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
@@ -240,9 +241,40 @@ export function AnalyticsCharts() {
         </div>
       </section>
 
+      {/* NEW CHART: Publications by Category */}
+      <section className="p-4 rounded-lg xl:col-span-2">
+        <h2 className="font-semibold mb-4 text-slate-900">
+          Publications by Category
+        </h2>
+        <div className="h-72">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data.categories}
+              margin={{ top: 12, right: 12, left: 0, bottom: 0 }}
+              barSize={20}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#4A4A4A" />
+              <XAxis dataKey="category" stroke="#000" />
+              <YAxis allowDecimals={false} stroke="#000" />
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{ fill: "rgba(136, 132, 216, 0.12)" }}
+              />
+              <Bar
+                dataKey="count"
+                fill="#82ca9d"
+                background={{ fill: "#eee" }}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </section>
+      
       {/* LAST CHART: Publications by Year with Triangle Bars */}
       <section className="p-4 rounded-lg xl:col-span-3">
-        <h2 className="font-semibold mb-4 text-slate-900">Publications by Year</h2>
+        <h2 className="font-semibold mb-4 text-slate-900">
+          Publications by Year
+        </h2>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
@@ -257,17 +289,11 @@ export function AnalyticsCharts() {
                 content={<CustomTooltip />}
                 cursor={{ fill: "rgba(136, 132, 216, 0.12)" }}
               />
-              <Bar dataKey="count" fill="#8884d8" background={{ fill: '#eee' }} />
-              {/* <Bar
+              <Bar
                 dataKey="count"
-                name="count"
-                shape={<TriangleBar />}
-                label={{ position: "top", fill: "#ccc" }}
-              >
-                {data.byYear.map((_, idx) => (
-                  <Cell key={idx} fill={COLORS[idx % COLORS.length]} />
-                ))}
-              </Bar> */}
+                fill="#8884d8"
+                background={{ fill: "#eee" }}
+              />
             </BarChart>
           </ResponsiveContainer>
         </div>
