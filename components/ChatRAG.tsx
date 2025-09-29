@@ -348,7 +348,7 @@ const ChatUI: React.FC<ChatUIProps> = ({
         const updated = [...prev];
         updated[updated.length - 1] = {
           ...updated[updated.length - 1],
-          answer: `An error occurred: ${error.message}`,
+          answer: `An error occurred: ${error instanceof Error ? error.message : String(error)}`,
           isTyping: true
         };
         return updated;

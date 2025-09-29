@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 interface CategoryFormProps {
   onSave: (category: { title: string; description?: string; image?: string }) => void;
   onCancel: () => void;
-  initialData?: { title: string; description?: string; image?: string };
+  initialData?: { title: string; description?: string; image?: string } | null;
 }
 
 const CategoryForm: React.FC<CategoryFormProps> = ({ onSave, onCancel, initialData }) => {

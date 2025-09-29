@@ -2,6 +2,18 @@
 import React, { useState, useEffect } from "react";
 import { API_BASE } from "@/lib/api";
 
+interface Subcategory {
+  id: number;
+  title: string;
+  category_id: number;
+}
+
+interface Category {
+  id: number;
+  title: string;
+  subcategories: Subcategory[];
+}
+
 export default function UploadForm() {
   const [formData, setFormData] = useState({
     title: "",
@@ -21,7 +33,7 @@ export default function UploadForm() {
   const [pdf, setPdf] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [resp, setResp] = useState<any>(null);
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -49,7 +61,7 @@ export default function UploadForm() {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
   const subcategories = categories.find(
-    (c) => c.id == formData.category_id
+    (c) => c.id == Number(formData.category_id)
   )?.subcategories;
 
 
@@ -80,9 +92,9 @@ export default function UploadForm() {
         throw new Error(await res.text());
       }
       setResp(await res.json());
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      alert(error.message);
+      alert(error?.message);
     } finally {
       setBusy(false);
     }

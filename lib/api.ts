@@ -6,7 +6,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
     headers: {
       ...(init?.headers || {}),
     },
-    cache: "no-store",
+    // cache: "no-store",
   });
   if (!res.ok) {
     throw new Error(await res.text());

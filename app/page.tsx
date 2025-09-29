@@ -25,6 +25,9 @@ export default async function Page() {
   let pubs: Pub[] = [];
   let overview: Overview = { publication_count: 0, author_count: 0, tag_count: 0, year_distribution: {}, top_tags: {} };
   let categoriesData: { category: string; count: number }[] = [];
+console.log("pubs", pubs);
+console.log("overview", overview);
+console.log("categoriesData", categoriesData);
 
   try {
     pubs = await api<Pub[]>("/publications", { next: { revalidate: 5 } });
@@ -136,7 +139,7 @@ export default async function Page() {
               Recent Publications
             </h2>
             <ul className="space-y-2">
-              {pubs.slice(0, 5).map((p) => (
+              {pubs.length > 0 && pubs?.slice(0, 5).map((p) => (
                 <li key={p.id}>
                   <Link
                     href={`/publications/${p.id}`}
@@ -154,7 +157,7 @@ export default async function Page() {
                   </Link>
                 </li>
               ))}
-              {pubs.length === 0 && (
+              {pubs?.length === 0 && (
                 <li className="text-sm text-slate-500">
                   No publications available.
                 </li>

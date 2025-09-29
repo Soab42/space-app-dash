@@ -1,11 +1,5 @@
 "use client";
-import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useCallback,
-} from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 /**
  * Pure React + Canvas Force Graph (no external libraries)
@@ -23,13 +17,12 @@ import React, {
 // Types
 export type NodeDatum = {
   id: string;
-  label?: string; // category/type
-  tooltip?: string;
+  type?: string; // category/type
 };
 export type EdgeDatum = {
-  from: string;
-  to: string;
-  label?: string;
+  source: string;
+  target: string;
+  relationship?: string;
 };
 export type GraphData = { nodes: NodeDatum[]; edges: EdgeDatum[] };
 
@@ -96,11 +89,11 @@ export default function ForceGraph({
   // Hover + selection
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-
+  const dataMap = graphConverter(data);
   // Build simulation nodes map
   const { nodes, nodeMap, edges } = useMemo(() => {
     const map = new Map<string, SimNode>();
-    const ns: SimNode[] = data.nodes.map((n, i) => ({
+    const ns: SimNode[] = dataMap.nodes.map((n, i) => ({
       ...n,
       x: (Math.random() - 0.5) * 400,
       y: (Math.random() - 0.5) * 400,
@@ -108,7 +101,9 @@ export default function ForceGraph({
       vy: 0,
     }));
     ns.forEach((n) => map.set(n.id, n));
-    const es = data.edges.filter((e) => map.has(e.from) && map.has(e.to));
+    const es = dataMap.edges.filter(
+      (e) => map.has(e.source) && map.has(e.target)
+    );
     return { nodes: ns, nodeMap: map, edges: es };
   }, [data]);
 
@@ -246,7 +241,7 @@ export default function ForceGraph({
       for (const n of nodes) {
         const r = nodeRadius;
         ctx.beginPath();
-        ctx.fillStyle = colorForType(n.type);
+        ctx.fillStyle = colorForType(n.type || "");
         ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
         ctx.fill();
         // outline for hover/selection
@@ -472,7 +467,7 @@ export default function ForceGraph({
     <div className="w-full border border-slate-200 rounded-2xl shadow-sm bg-slate-50/10">
       <div className="flex items-center justify-between p-2 gap-2 border-b border-slate-200 bg-slate-50 rounded-t-2xl">
         <div className="flex items-center gap-2 text-slate-700 text-sm">
-          <strong>Force Graph</strong>
+          <strong>Knowledge Graph</strong>
           <span className="opacity-60">
             (drag nodes • pan background • wheel to zoom)
           </span>
@@ -502,11 +497,15 @@ export default function ForceGraph({
           <div className="absolute top-2 right-2 bg-white/90 backdrop-blur border border-slate-200 rounded-xl shadow p-3 max-w-xs text-sm">
             <div className="font-bold mb-1 text-slate-700">{selectedId}</div>
             <div className="text-slate-600">
-              Type:{" "}
+              Description:{" "}
               <span
-                style={{ color: colorForType(nodeMap.get(selectedId!)?.label || "") }}
+                style={{
+                  color: colorForType(
+                    nodeMap.get(selectedId!)?.type || "default"
+                  ),
+                }}
               >
-                {nodeMap.get(selectedId!)?.label || "—"}
+                {nodeMap.get(selectedId!)?.type || "—"}
               </span>
             </div>
             {/* Show incident edges */}
@@ -515,22 +514,22 @@ export default function ForceGraph({
               <ul className="list-disc list-inside space-y-1 max-h-40 overflow-auto">
                 {edges
                   .filter(
-                    (e) => e.from === selectedId || e.to === selectedId
+                    (e) => e.source === selectedId || e.target === selectedId
                   )
                   .map((e, i) => (
                     <li key={i} className="text-slate-600">
-                      {e.from === selectedId ? (
+                      {e.source === selectedId ? (
                         <>
-                          → <b>{e.to}</b>{" "}
+                          → <b>{e.target}</b>{" "}
                           <span className="opacity-60">
-                            {e.label ? `(${e.label})` : ""}
+                            {e.relationship ? `(${e.relationship})` : ""}
                           </span>
                         </>
                       ) : (
                         <>
-                          ← <b>{e.from}</b>{" "}
+                          ← <b>{e.source}</b>{" "}
                           <span className="opacity-60">
-                            {e.label ? `(${e.label})` : ""}
+                            {e.relationship ? `(${e.relationship})` : ""}
                           </span>
                         </>
                       )}
@@ -544,7 +543,7 @@ export default function ForceGraph({
       {/* Legend */}
       <div className="flex flex-wrap gap-3 p-3 text-xs text-slate-600">
         {Array.from(
-          new Set(data.nodes.map((n) => n.label).filter(Boolean) as string[])
+          new Set(data.nodes.map((n) => n.type).filter(Boolean) as string[])
         ).map((t) => (
           <div key={t} className="flex items-center gap-2">
             <span
@@ -558,3 +557,31 @@ export default function ForceGraph({
     </div>
   );
 }
+
+export const graphConverter = (data: { nodes: any[]; edges: any[] }) => {
+  // {"id": "HumanCellAtlas", "label": "Human Cell Atlas", "type": "Concept"},
+  const nodes = data.nodes.map(
+    (node: { id: string; label: string; tooltip: string }) => {
+      return {
+        id: node.id,
+        label: node.label,
+        type: node.tooltip,
+      };
+    }
+  );
+
+  // {"source": "HumanCellAtlas", "target": "SpaceOmics", "relationship": "proposed as a"},
+  const edges = data.edges.map(
+    (edge: { from: string; to: string; label: string }) => {
+      return {
+        source: edge.from,
+        target: edge.to,
+        relationship: edge.label,
+      };
+    }
+  );
+  return {
+    nodes,
+    edges,
+  };
+};

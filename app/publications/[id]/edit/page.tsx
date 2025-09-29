@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import { api, API_BASE } from '@/lib/api';
 import { notFound, useRouter } from 'next/navigation';
-import { Pub as Publication, Tag } from '../page';
+import React, { useEffect, useState } from 'react';
+import { Author, Pub as Publication, Tag } from '../page';
 
 
 const EditPublicationPage = ({ params }: { params: { id: string } }) => {
   const [publication, setPublication] = useState<Publication | null>(null);
   const [formData, setFormData] = useState<any>({});
-  const [isLoading, setIsLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
@@ -37,7 +38,7 @@ const EditPublicationPage = ({ params }: { params: { id: string } }) => {
         setError('Failed to fetch publication data.');
         console.error(err);
       }
-      setIsLoading(false);
+      setIsPageLoading(false);
     };
 
     fetchPublication();
@@ -45,20 +46,20 @@ const EditPublicationPage = ({ params }: { params: { id: string } }) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    setFormData((prev: any) => ({ ...prev, [id]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsSaving(true);
     setError(null);
 
     try {
-      const { id, add_more_context, ...restOfFormData } = formData;
+      const { id, ...restOfFormData } = formData;
 
       const updatePayload = {
         ...restOfFormData,
-        authors: JSON.parse(formData.authors).map(({ id: authorId, ...author }) => author),
+        authors: (JSON.parse(formData.authors) as Author[]).map(({ id: authorId, ...author }) => author),
         tags: formData.tags.split(',').map((t: string) => t.trim()),
         faqs: JSON.parse(formData.faqs),
         knowledge_graph: JSON.parse(formData.knowledge_graph),
@@ -94,13 +95,13 @@ const EditPublicationPage = ({ params }: { params: { id: string } }) => {
       setError('Failed to update publication.');
       console.error(err);
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
   console.log(formData);
 
-  if (isLoading) {
+  if (isPageLoading) {
     return <div>Loading...</div>;
   }
 
@@ -467,10 +468,10 @@ const EditPublicationPage = ({ params }: { params: { id: string } }) => {
 
             <div className="flex justify-end pt-6 border-t border-slate-200/30">
               <button
-                disabled={isLoading}
+                disabled={isSaving}
                 className="px-8 py-3 rounded-xl bg-slate-800 text-white font-medium hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg shadow-slate-800/25 focus:outline-none focus:ring-2 focus:ring-slate-400/60"
               >
-                {isLoading ? 'Saving...' : 'Save Changes'}
+                {isSaving ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           </div>

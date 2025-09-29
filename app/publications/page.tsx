@@ -2,9 +2,9 @@
 
 import { api } from "@/lib/api";
 import Link from "next/link";
-import CollapsibleHeader from "./CollapsibleHeader";
-import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import CollapsibleHeader from "./CollapsibleHeader";
 
 // --- Types ---
 export type Author = {
@@ -21,12 +21,15 @@ export type Tag = {
 export type Category = {
   id: number;
   title: string;
+  description?: string;
+  subcategories?: SubCategory[];
 };
 
 export type SubCategory = {
   id: number;
   title: string;
   category_id: number;
+  description?: string;
 };
 
 export type Pub = {
@@ -72,7 +75,6 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [loading, setLoading] = useState(true);
-  const [applyFilterTrigger, setApplyFilterTrigger] = useState(0);
 
   const publicationsPerPage = 10;
 
@@ -116,7 +118,6 @@ export default function Page() {
     currentPage,
     categories,
     subcategories,
-    applyFilterTrigger,
   ]);
 
   const fetchFilters = async () => {

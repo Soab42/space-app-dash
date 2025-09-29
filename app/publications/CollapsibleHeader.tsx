@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Category, SubCategory } from "./page";
 import DualRangeSlider from "@/components/DualRangeSlider";
+import { useState } from "react";
+import { Category, SubCategory } from "./page";
 
 interface CollapsibleHeaderProps {
   q: string;

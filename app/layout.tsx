@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
 import { Sidebar } from "@/components/Sidebar";
-import Link from "next/link";
+import type { Metadata } from "next";
 import "./globals.css";
+import { Suspense } from "react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export const metadata: Metadata = {
   title: "NASA Bioscience Dashboard",
@@ -21,7 +22,7 @@ export default function RootLayout({
         <div className="relative flex flex-col lg:flex-row h-screen text-white bg-gradient-to-br from-slate-100 via-slate-100 to-slate-200">
           <Sidebar />
           <main className="flex-1 p-6 overflow-y-auto">
-            {children}
+            <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
           </main>
         </div>
       </body>

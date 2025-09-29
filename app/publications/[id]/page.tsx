@@ -6,6 +6,8 @@ import KnowledgeGraph, {
   NodeDatum,
 } from "@/components/KnowledgeGraph";
 import { notFound } from "next/navigation";
+import RelatedPublications from '@/components/RelatedPublications';
+
 
 // Define more specific types based on the provided JSON data
 export interface Tag {
@@ -79,6 +81,14 @@ export default async function Page({ params }: { params: { id: string } }) {
   } catch (error) {
     console.error(error);
     throw new Error("Failed to fetch publication");
+  }
+
+  let relatedPublications: Pub[] = [];
+  try {
+    relatedPublications = await api<Pub[]>(`/publications/${params.id}/related`);
+  } catch (error) {
+    console.error("Failed to fetch related publications", error);
+    // Do not throw an error, just show an empty list
   }
 
   if (!pub) {
@@ -399,6 +409,9 @@ export default async function Page({ params }: { params: { id: string } }) {
                 </div>
               </section>
             )}
+
+            <RelatedPublications publications={relatedPublications} />
+
           </aside>
         </div>
 

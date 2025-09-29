@@ -4,7 +4,7 @@ interface SubCategoryFormProps {
   onSave: (subCategory: { title: string; description?: string; image?: string; category_id: number }) => void;
   onCancel: () => void;
   categories: { id: number; title: string }[];
-  initialData?: { title: string; description?: string; image?: string; category_id: number };
+  initialData?: { title: string; description?: string; image?: string; category_id: number } | null;
 }
 
 const SubCategoryForm: React.FC<SubCategoryFormProps> = ({ onSave, onCancel, categories, initialData }) => {
