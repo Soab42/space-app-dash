@@ -6,6 +6,8 @@ import React, { useEffect, useState } from 'react';
 import { Author, Pub as Publication, Tag } from '../page';
 
 
+import AuthGuard from "@/components/AuthGuard";
+
 const EditPublicationPage = ({ params }: { params: { id: string } }) => {
   const [publication, setPublication] = useState<Publication | null>(null);
   const [formData, setFormData] = useState<any>({});
@@ -225,6 +227,21 @@ const EditPublicationPage = ({ params }: { params: { id: string } }) => {
                     value={formData.environment || ''}
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-xl bg-white/50 border border-slate-200/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-slate-400/50 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-500"
+                  />
+                </div>
+                {/* podcast_audio_path */}
+                <div className="">
+                  <label
+                    htmlFor="podcast_audio_path"
+                    className="block text-sm font-medium text-slate-700 mb-2"
+                  >
+                    Podcast Audio Path
+                  </label>
+                  <input
+                    id="podcast_audio_path"
+                    value={formData.podcast_audio_path || ''}
+                    onChange={handleChange}
+                    className="w-133 px-4 py-3 rounded-xl bg-white/50 border border-slate-200/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-slate-400/50 focus:border-transparent transition-all duration-200 text-slate-800 placeholder-slate-500"
                   />
                 </div>
               </div>
@@ -481,4 +498,10 @@ const EditPublicationPage = ({ params }: { params: { id: string } }) => {
   );
 };
 
-export default EditPublicationPage;
+const GuardedEditPublicationPage = ({ params }: { params: { id: string } }) => (
+  <AuthGuard>
+    <EditPublicationPage params={params} />
+  </AuthGuard>
+);
+
+export default GuardedEditPublicationPage;

@@ -10,6 +10,7 @@ import { PlusIcon } from "../../components/icons/PlusIcon";
 import { ChevronDownIcon } from "../../components/icons/ChevronDownIcon";
 import { api } from "@/lib/api";
 import { Category, SubCategory } from "../publications/page";
+import AuthGuard from "@/components/AuthGuard";
 
 const CategoriesPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -24,20 +25,15 @@ const CategoriesPage = () => {
   const [openRows, setOpenRows] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
-    console.log("fetching categories");
     fetchCategories();
   }, []);
 
   const fetchCategories = async () => {
     try {
       const res = await api<Category[]>("/categories");
-      console.log("res", res);
       if (res) {
-        // const data = await res.json();
-        // console.log('data', data);
         setCategories(res);
       } else {
-        console.log("Failed to fetch categories");
         throw new Error("Failed to fetch categories");
       }
     } catch (error) {
@@ -63,7 +59,6 @@ const CategoriesPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      console.log("res", res);
       if (res) {
         fetchCategories();
         setIsCategoryModalOpen(false);
@@ -94,7 +89,6 @@ const CategoriesPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-      console.log("res", res);
       if (res) {
         fetchCategories();
         setIsSubCategoryModalOpen(false);
@@ -114,11 +108,9 @@ const CategoriesPage = () => {
       const res = await api<Category>(`/categories/${categoryId}`, {
         method: "DELETE",
       });
-      console.log("res", res);
       if (res) {
         fetchCategories();
       } else {
-        console.log("Failed to delete category");
         throw new Error("Failed to delete category");
       }
     } catch (error) {
@@ -135,7 +127,6 @@ const CategoriesPage = () => {
           method: "DELETE",
         }
       );
-      console.log("res", res);
       if (res) {
         fetchCategories();
       } else {
@@ -261,89 +252,90 @@ const CategoriesPage = () => {
     );
   };
 
-  console.log("categories", categories);
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-800">
-          Categories & Subcategories
-        </h1>
-        <button
-          onClick={() => setIsCategoryModalOpen(true)}
-          className="px-4 py-2 rounded-xl bg-slate-800 text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400/50 shadow-sm"
-        >
-          Add Category
-        </button>
-      </div>
+    <AuthGuard>
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold text-slate-800">
+            Categories & Subcategories
+          </h1>
+          <button
+            onClick={() => setIsCategoryModalOpen(true)}
+            className="px-4 py-2 rounded-xl bg-slate-800 text-white hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400/50 shadow-sm"
+          >
+            Add Category
+          </button>
+        </div>
 
-      {/* Category Modal */}
-      <Modal
-        isOpen={isCategoryModalOpen}
-        onClose={() => {
-          setIsCategoryModalOpen(false);
-          setEditingCategory(null);
-        }}
-        title={editingCategory ? "Edit Category" : "Add Category"}
-      >
-        <CategoryForm
-          onSave={handleSaveCategory}
-          onCancel={() => {
+        {/* Category Modal */}
+        <Modal
+          isOpen={isCategoryModalOpen}
+          onClose={() => {
             setIsCategoryModalOpen(false);
             setEditingCategory(null);
           }}
-          initialData={editingCategory}
-        />
-      </Modal>
+          title={editingCategory ? "Edit Category" : "Add Category"}
+        >
+          <CategoryForm
+            onSave={handleSaveCategory}
+            onCancel={() => {
+              setIsCategoryModalOpen(false);
+              setEditingCategory(null);
+            }}
+            initialData={editingCategory}
+          />
+        </Modal>
 
-      {/* SubCategory Modal */}
-      <Modal
-        isOpen={isSubCategoryModalOpen}
-        onClose={() => {
-          setIsSubCategoryModalOpen(false);
-          setEditingSubCategory(null);
-        }}
-        title={editingSubCategory ? "Edit SubCategory" : "Add SubCategory"}
-      >
-        <SubCategoryForm
-          onSave={handleSaveSubCategory}
-          onCancel={() => {
+        {/* SubCategory Modal */}
+        <Modal
+          isOpen={isSubCategoryModalOpen}
+          onClose={() => {
             setIsSubCategoryModalOpen(false);
             setEditingSubCategory(null);
           }}
-          categories={categories}
-          initialData={
-            editingSubCategory
-              ? {
-                  ...editingSubCategory,
-                  category_id: selectedCategory || 0, // Provide a default number (0 or any other default category ID)
-                }
-              : {
-                  title: "",
-                  description: "",
-                  category_id: selectedCategory || categories[0]?.id || 0,
-                }
-          }
-        />
-      </Modal>
+          title={editingSubCategory ? "Edit SubCategory" : "Add SubCategory"}
+        >
+          <SubCategoryForm
+            onSave={handleSaveSubCategory}
+            onCancel={() => {
+              setIsSubCategoryModalOpen(false);
+              setEditingSubCategory(null);
+            }}
+            categories={categories}
+            initialData={
+              editingSubCategory
+                ? {
+                    ...editingSubCategory,
+                    category_id: selectedCategory || 0, // Provide a default number (0 or any other default category ID)
+                  }
+                : {
+                    title: "",
+                    description: "",
+                    category_id: selectedCategory || categories[0]?.id || 0,
+                  }
+            }
+          />
+        </Modal>
 
-      <div className="rounded-2xl backdrop-blur-xl bg-white/60 border border-white/30 shadow-lg overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-white/50">
-            <tr>
-              <th className="p-4 w-12"></th>
-              <th className="p-4 font-semibold text-slate-800">Category</th>
-              <th className="p-4 font-semibold text-slate-800">Description</th>
-              <th className="p-4 font-semibold text-slate-800">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.map((category) => (
-              <CollapsibleRow key={category.id} category={category} />
-            ))}
-          </tbody>
-        </table>
+        <div className="rounded-2xl backdrop-blur-xl bg-white/60 border border-white/30 shadow-lg overflow-hidden">
+          <table className="w-full text-left">
+            <thead className="bg-white/50">
+              <tr>
+                <th className="p-4 w-12"></th>
+                <th className="p-4 font-semibold text-slate-800">Category</th>
+                <th className="p-4 font-semibold text-slate-800">Description</th>
+                <th className="p-4 font-semibold text-slate-800">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {categories.map((category) => (
+                <CollapsibleRow key={category.id} category={category} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </AuthGuard>
   );
 };
 

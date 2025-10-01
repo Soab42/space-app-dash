@@ -6,8 +6,9 @@ import KnowledgeGraph, {
   NodeDatum,
 } from "@/components/KnowledgeGraph";
 import { notFound } from "next/navigation";
-import RelatedPublications from '@/components/RelatedPublications';
-
+import RelatedPublications from "@/components/RelatedPublications";
+import AudioPlayer from "@/components/AudioPlayer";
+import EditButton from "@/components/EditButton";
 
 // Define more specific types based on the provided JSON data
 export interface Tag {
@@ -53,8 +54,10 @@ export interface Pub {
   organism: string;
   environment: string;
   original_link?: string;
+  podcast_audio_path?: string;
   tags?: Tag[];
   authors?: Author[];
+  summary_of_abstract: string;
   summary_for_scientist: string;
   summary_for_investor: string;
   summary_for_mission_architect: string;
@@ -63,7 +66,7 @@ export interface Pub {
   knowledge_graph?: { nodes: NodeDatum[]; edges: EdgeDatum[] };
   knowledge_gaps?: KnowledgeGaps;
   consensus_disagreement?: ConsensusDisagreement;
-  others_data:Record<string, any>;
+  others_data: Record<string, any>;
 }
 
 // Helper component for list items
@@ -85,7 +88,9 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   let relatedPublications: Pub[] = [];
   try {
-    relatedPublications = await api<Pub[]>(`/publications/${params.id}/related`);
+    relatedPublications = await api<Pub[]>(
+      `/publications/${params.id}/related`
+    );
   } catch (error) {
     console.error("Failed to fetch related publications", error);
     // Do not throw an error, just show an empty list
@@ -113,6 +118,21 @@ export default async function Page({ params }: { params: { id: string } }) {
               {pub.title}
             </h1>
 
+            {pub.podcast_audio_path && (
+              <div className="pt-4">
+                <h2 className="text-lg font-medium text-slate-800 mb-2">
+                  Podcast
+                </h2>
+                {/* <AudioPlayer audioUrl={pub.podcast_audio_path} /> */}
+                <audio controls className="w-full">
+                  <source
+                    src={`/api/audio?url=${pub.podcast_audio_path}`}
+                    type="audio/mpeg"
+                  />
+                </audio>
+              </div>
+            )}
+
             <div className="flex flex-wrap items-center gap-8 text-sm">
               <div className="flex items-center gap-3">
                 <div className="w-1.5 h-1.5 bg-slate-400 rounded-full"></div>
@@ -129,16 +149,10 @@ export default async function Page({ params }: { params: { id: string } }) {
               <div className="flex items-center gap-3">
                 <div className="w-1.5 h-1.5 bg-slate-400 rounded-full"></div>
                 <span className="font-medium text-slate-700">Environment</span>
-                <span className="text-slate-600">
-                  {pub.environment ?? "—"}
-                </span>
+                <span className="text-slate-600">{pub.environment ?? "—"}</span>
               </div>
               <div className="flex items-center gap-3">
-                <Link href={`/publications/${params.id}/edit`}>
-                  <button className="px-4 py-2 text-sm font-medium text-white bg-slate-800 rounded-lg hover:bg-slate-700">
-                    Edit
-                  </button>
-                </Link>
+                <EditButton publicationId={pub.id} />
               </div>
             </div>
 
@@ -186,7 +200,7 @@ export default async function Page({ params }: { params: { id: string } }) {
               </div>
               <div className="px-8 py-8">
                 <p className="text-slate-700 leading-relaxed text-base whitespace-pre-wrap">
-                  {pub.abstract || "No abstract available"}
+                  {pub.summary_of_abstract || "No abstract available"}
                 </p>
               </div>
             </section>
@@ -266,11 +280,9 @@ export default async function Page({ params }: { params: { id: string } }) {
                       Current Limitations
                     </h4>
                     <ul className="space-y-3">
-                      {pub.knowledge_gaps.current_limitations.map(
-                        (item, i) => (
-                          <ListItem key={i}>{item}</ListItem>
-                        )
-                      )}
+                      {pub.knowledge_gaps.current_limitations.map((item, i) => (
+                        <ListItem key={i}>{item}</ListItem>
+                      ))}
                     </ul>
                   </div>
                   <div>
@@ -296,7 +308,7 @@ export default async function Page({ params }: { params: { id: string } }) {
                 </div>
               </section>
             )}
-            
+
             {/* Consensus & Disagreement */}
             {pub.consensus_disagreement && (
               <section className="backdrop-blur-xl bg-white/60 rounded-2xl border border-white/20 shadow-lg shadow-slate-200/50">
@@ -319,14 +331,16 @@ export default async function Page({ params }: { params: { id: string } }) {
                       )}
                     </ul>
                   </div>
-                   <div>
+                  <div>
                     <h4 className="font-semibold text-slate-800 mb-3">
                       Areas of Debate
                     </h4>
                     <ul className="space-y-3">
-                      {pub.consensus_disagreement.areas_of_debate.map((item, i) => (
-                        <ListItem key={i}>{item}</ListItem>
-                      ))}
+                      {pub.consensus_disagreement.areas_of_debate.map(
+                        (item, i) => (
+                          <ListItem key={i}>{item}</ListItem>
+                        )
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -411,7 +425,6 @@ export default async function Page({ params }: { params: { id: string } }) {
             )}
 
             <RelatedPublications publications={relatedPublications} />
-
           </aside>
         </div>
 

@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import {Header} from "@/components/Header";
+import { Header } from "@/components/Header";
 import Link from "next/link";
 import { AnalyticsCharts } from "@/components/AnalyticsCharts";
 
@@ -8,7 +8,8 @@ import { AnalyticsCharts } from "@/components/AnalyticsCharts";
 type Pub = {
   id: number;
   title: string;
-  year?: number;
+  date_year?: number;
+  date_month?: string;
   tags?: { id: number; name: string }[];
   authors?: string[];
 };
@@ -22,21 +23,27 @@ type Overview = {
 };
 
 export default async function Page() {
-  let pubs: Pub[] = [];
-  let overview: Overview = { publication_count: 0, author_count: 0, tag_count: 0, year_distribution: {}, top_tags: {} };
+  let pubs: { publications: Pub[] };
+  let overview: Overview = {
+    publication_count: 0,
+    author_count: 0,
+    tag_count: 0,
+    year_distribution: {},
+    top_tags: {},
+  };
   let categoriesData: { category: string; count: number }[] = [];
-console.log("pubs", pubs);
-console.log("overview", overview);
-console.log("categoriesData", categoriesData);
 
   try {
-    pubs = await api<Pub[]>("/publications", { next: { revalidate: 5 } });
+    pubs = await api<{ publications: Pub[] }>("/publications?skip=0&limit=5", { next: { revalidate: 5 } });
     overview = await api<Overview>("/analytics/overview", {
       next: { revalidate: 5 },
     });
-    categoriesData = await api<{ category: string; count: number }[]>("/analytics/publications_by_category", {
-      next: { revalidate: 5 },
-    });
+    categoriesData = await api<{ category: string; count: number }[]>(
+      "/analytics/publications_by_category",
+      {
+        next: { revalidate: 5 },
+      }
+    );
   } catch (error) {
     console.error("Failed to fetch data:", error);
     // You can re-throw the error to be caught by the global error boundary
@@ -139,25 +146,26 @@ console.log("categoriesData", categoriesData);
               Recent Publications
             </h2>
             <ul className="space-y-2">
-              {pubs.length > 0 && pubs?.slice(0, 5).map((p) => (
-                <li key={p.id}>
-                  <Link
-                    href={`/publications/${p.id}`}
-                    className="group flex items-start gap-3 rounded-2xl px-3 py-2 hover:bg-white/50 transition-colors"
-                  >
-                    <div className="mt-1 h-2 w-2 rounded-full bg-slate-400" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-slate-800 group-hover:text-slate-900 line-clamp-2">
-                        {p.title}
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {p.year ?? "—"}
-                      </p>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-              {pubs?.length === 0 && (
+              {pubs.publications.length > 0 &&
+                pubs.publications.slice(0, 5).map((p) => (
+                  <li key={p.id}>
+                    <Link
+                      href={`/publications/${p.id}`}
+                      className="group flex items-start gap-3 rounded-2xl px-3 py-2 hover:bg-white/50 transition-colors"
+                    >
+                      <div className="mt-1 h-2 w-2 rounded-full bg-slate-400" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-slate-800 group-hover:text-slate-900 line-clamp-2">
+                          {p.title}
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">
+                           {p.date_month ?? "—"}, {p.date_year ?? "—"} 
+                        </p>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              {pubs.publications.length === 0 && (
                 <li className="text-sm text-slate-500">
                   No publications available.
                 </li>
